@@ -4,6 +4,25 @@ All notable changes to this project are documented in this file. The format foll
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-11-18
+
+### Added
+
+- Inline toolbar under every diagram: zoom out, a percentage readout that resets to 100 % when
+  clicked, zoom in (25 %–400 % overall), a **fit width** toggle, and **fullscreen**.
+- Zoom is applied by assigning the SVG a new layout size instead of a CSS `transform`. The browser
+  therefore re-renders the vectors at the target size, so text and strokes stay sharp at every zoom
+  level; a transformed layer is rasterized once and then stretched, which is what makes scaled
+  diagrams look soft.
+- Fullscreen overlay carries its own copy of the SVG: `Esc` closes it, `⌘/Ctrl` + wheel zooms, and the
+  inline diagram is untouched while it is open (it is re-fitted when it closes).
+- Zoom and fit state survive the automatic re-render on light/dark theme changes.
+
+### Changed
+
+- The **Show source / Show diagram** toggle moved into a right-aligned action group beside the new
+  controls; it is hidden until the diagram is ready, together with the rest of the group.
+
 ## [1.0.0] - 2026-11-09
 
 First public release.
