@@ -10,8 +10,9 @@ Markdown surface are rendered as inline SVG diagrams instead of plain code.
   **Show source / Show diagram** toggle, and the shipped header (language label, wrap, copy) is kept.
 - **Crisp zoom and fullscreen.** Zoom (25 %–400 %) resizes the SVG's layout box instead of applying a
   CSS transform, so the browser re-renders the vectors at the target size and text stays sharp at
-  every level. The toolbar also has **fit width** and **fullscreen** (close with `Esc`); `⌘/Ctrl` +
-  wheel zooms inside the fullscreen view.
+  every level. The controls sit in the code card's own header row, next to wrap/copy: zoom out, the
+  percentage (click to reset), zoom in, **fit width**, **fullscreen** (close with `Esc`; `⌘/Ctrl` +
+  wheel zooms inside it), then the source/diagram toggle. Every control has a hover hint.
 - Colors come from the active DSH theme (`--dsw-alias-*` tokens); every diagram re-renders on
   light/dark changes.
 - Invalid or oversized diagrams fall back to the untouched code block with a localized inline note.
@@ -199,7 +200,7 @@ DeepSeek Harness Web 界面的 Mermaid 图表渲染插件：聊天回复、计�
 ` ```mermaid ` 会被渲染成图表，保留源码切换、跟随浅色/深色主题，无效图表回退为代码块。mermaid
 12.3.0 以懒加载分块随插件本地打包，渲染时不联网。
 
-图表默认按自然尺寸显示，工具栏提供**缩放（25 %–400 %）**、**适应宽度**和**全屏**（`Esc` 退出）。
+图表默认按自然尺寸显示，控件放在代码卡片自己的标题行里（紧挨换行/复制）：**缩放（25 %–400 %）**、**适应宽度**、**全屏**（`Esc` 退出，全屏内 `⌘/Ctrl` + 滚轮缩放）和源码切换，每个控件都有悬停说明。
 缩放是改 SVG 的布局尺寸而不是套 CSS `transform`，所以浏览器会按目标尺寸重新渲染矢量，放大到
 400 % 文字依然锐利，不会像缩放位图那样发虚。安装：克隆本仓库后，在 DSH 的 **Plugins →
 Add plugin** 中填入该目录的绝对路径（或让 DSH Agent 用 `plugin_manager install_bundle` 安装），

@@ -133,77 +133,32 @@ window.__ModuleLoader__.load({
         background: transparent;
         margin: 0 auto;
       }
-      .dsh-mermaid-bar {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        min-height: 26px;
-        padding: 2px 8px 3px;
-        border-top: 1px dashed var(--dsw-alias-border-l1, rgba(127, 127, 127, 0.2));
-      }
-      .dsh-mermaid-badge {
-        font-size: 11px;
-        line-height: 16px;
-        font-weight: 500;
-        letter-spacing: 0.02em;
-        color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary, #8a8f98));
-        user-select: none;
-      }
-      .dsh-mermaid-note {
-        flex: 1 1 auto;
-        min-width: 0;
-        font-size: 12px;
-        line-height: 18px;
-        color: var(--dsw-alias-label-secondary, #5c6370);
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      .dsh-mermaid-note[hidden] { display: none; }
-      .dsh-mermaid-error { color: var(--dsw-alias-state-error-primary, var(--dsw-alias-label-secondary, #c0392b)); }
-      .dsh-mermaid-toggle {
-        appearance: none;
-        flex: none;
-        margin-left: 0;
-        padding: 0 6px;
-        border: 0;
-        border-radius: var(--dsw-radius-sm, 6px);
-        background: transparent;
-        color: var(--dsw-alias-label-secondary, #5c6370);
-        font: inherit;
-        font-size: 12px;
-        line-height: 20px;
-        cursor: pointer;
-      }
-      .dsh-mermaid-toggle:hover {
-        background: var(--dsw-alias-interactive-bg-hover, rgba(127, 127, 127, 0.12));
-        color: var(--dsw-alias-label-primary, #0f1115);
-      }
-      .dsh-mermaid-toggle:focus-visible {
-        outline: var(--dsh-focus-ring-width, 2px) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary, #4176e6));
-        outline-offset: 1px;
-      }
+      /* Controls live in the shipped code-card banner, beside its wrap/copy
+         actions, so a diagram has exactly one control row. */
       .dsh-mermaid-actions {
-        flex: none;
-        margin-left: auto;
         display: flex;
         align-items: center;
-        gap: 2px;
+        gap: 1px;
+        margin-right: 2px;
       }
       .dsh-mermaid-actions[hidden] { display: none; }
       .dsh-mermaid-btn {
+        position: relative;
         appearance: none;
         flex: none;
-        min-width: 24px;
-        padding: 0 5px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 22px;
+        height: 22px;
+        padding: 0 4px;
         border: 0;
-        border-radius: var(--dsw-radius-sm, 6px);
+        border-radius: 5px;
         background: transparent;
         color: var(--dsw-alias-label-secondary, #5c6370);
         font: inherit;
         font-size: 12px;
-        line-height: 20px;
-        text-align: center;
+        line-height: 1;
         cursor: pointer;
       }
       .dsh-mermaid-btn:hover {
@@ -218,15 +173,34 @@ window.__ModuleLoader__.load({
         color: var(--dsw-alias-state-business-primary, #4176e6);
         background: var(--dsw-alias-interactive-bg-active, rgba(65, 118, 230, 0.12));
       }
-      .dsh-mermaid-btn:disabled {
-        color: var(--dsw-alias-label-tertiary, #8a8f98);
-        cursor: default;
-        background: transparent;
+      .dsh-mermaid-zoom { min-width: 40px; font-variant-numeric: tabular-nums; }
+      /* Hover hints are portalled (the card clips overflow), so they are a
+         separate fixed-position pill rather than a pseudo element. */
+      .dsh-mermaid-tip {
+        position: fixed;
+        z-index: 2147483001;
+        padding: 3px 7px;
+        border-radius: 6px;
+        background: var(--dsw-alias-label-primary, #0f1115);
+        color: var(--dsw-alias-bg-layer-1, #ffffff);
+        font-family: inherit;
+        font-size: 11px;
+        font-weight: 400;
+        line-height: 15px;
+        white-space: nowrap;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.1s ease;
       }
-      .dsh-mermaid-zoom {
-        min-width: 46px;
-        font-variant-numeric: tabular-nums;
+      .dsh-mermaid-tip[data-visible='true'] { opacity: 1; }
+      .dsh-mermaid-note {
+        padding: 2px 12px 6px;
+        font-size: 12px;
+        line-height: 18px;
+        color: var(--dsw-alias-label-secondary, #5c6370);
       }
+      .dsh-mermaid-note[hidden] { display: none; }
+      .dsh-mermaid-error { color: var(--dsw-alias-state-error-primary, var(--dsw-alias-label-secondary, #c0392b)); }
       .dsh-mermaid-fs {
         position: fixed;
         inset: 0;
@@ -243,6 +217,11 @@ window.__ModuleLoader__.load({
         gap: 8px;
         padding: 6px 10px;
         border-bottom: 1px solid var(--dsw-alias-border-l1, rgba(127, 127, 127, 0.2));
+      }
+      .dsh-mermaid-fs-label {
+        font-size: 12px;
+        line-height: 18px;
+        color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary, #8a8f98));
       }
       .dsh-mermaid-fs-body {
         flex: 1 1 auto;
@@ -721,7 +700,8 @@ window.__ModuleLoader__.load({
         record.toggle.hidden = !ready;
         record.actions.hidden = !ready;
         if (ready) {
-          record.toggle.textContent = showSource ? t('diagram.showDiagram') : t('diagram.showSource');
+          record.toggle.textContent = showSource ? '\u25a6' : '</>';
+          setTip(record.toggle, showSource ? t('diagram.showDiagram') : t('diagram.showSource'));
           record.toggle.setAttribute('aria-pressed', showSource ? 'true' : 'false');
         }
         record.view.hidden = false;
@@ -806,7 +786,6 @@ window.__ModuleLoader__.load({
         const text = `${Math.round(scale * 100)}%`;
         for (const label of record.zoomLabels) {
           label.textContent = text;
-          label.title = t('diagram.zoomReset');
         }
         for (const button of record.fitButtons) {
           button.setAttribute('aria-pressed', record.fitWidth === true ? 'true' : 'false');
@@ -832,9 +811,54 @@ window.__ModuleLoader__.load({
         applyScale(record);
       }
 
+      /** The portalled hover-hint pill, created on first use. */
+      let tipElement = null;
+
+      /**
+       * @param {HTMLButtonElement} button - a toolbar button.
+       * @param {string} label - visible hint and accessible name.
+       * @returns {void}
+       */
+      function setTip(button, label) {
+        button.setAttribute('aria-label', label);
+        button.dataset.tip = label;
+      }
+
+      /**
+       * Show the hover hint above one control. Portalled to `<body>` because the
+       * card clips its own overflow.
+       * @param {Element} anchor - the hovered control.
+       * @returns {void}
+       */
+      function showTip(anchor) {
+        const text = anchor.getAttribute('data-tip');
+        if (text === null || text === '' || document.body === null) return;
+        if (tipElement === null) {
+          tipElement = document.createElement('div');
+          tipElement.className = 'dsh-mermaid-tip';
+          document.body.appendChild(tipElement);
+        }
+        tipElement.textContent = text;
+        tipElement.dataset.visible = 'true';
+        const rect = anchor.getBoundingClientRect();
+        const tipRect = tipElement.getBoundingClientRect();
+        const left = Math.min(
+          Math.max(rect.left + rect.width / 2 - tipRect.width / 2, 8),
+          Math.max(window.innerWidth - tipRect.width - 8, 8),
+        );
+        const top = Math.max(rect.top - tipRect.height - 7, 8);
+        tipElement.style.left = `${Math.round(left)}px`;
+        tipElement.style.top = `${Math.round(top)}px`;
+      }
+
+      /** @returns {void} */
+      function hideTip() {
+        if (tipElement !== null) tipElement.dataset.visible = 'false';
+      }
+
       /**
        * @param {string} glyph - the visible label.
-       * @param {string} label - the accessible name.
+       * @param {string} label - the hint and accessible name.
        * @returns {HTMLButtonElement} a toolbar button.
        */
       function actionButton(glyph, label) {
@@ -842,8 +866,11 @@ window.__ModuleLoader__.load({
         button.type = 'button';
         button.className = 'dsh-mermaid-btn';
         button.textContent = glyph;
-        button.setAttribute('aria-label', label);
-        button.title = label;
+        setTip(button, label);
+        button.addEventListener('pointerenter', () => showTip(button));
+        button.addEventListener('pointerleave', hideTip);
+        button.addEventListener('focus', () => showTip(button));
+        button.addEventListener('blur', hideTip);
         return button;
       }
 
@@ -862,10 +889,10 @@ window.__ModuleLoader__.load({
         const bar = document.createElement('div');
         bar.className = 'dsh-mermaid-fs-bar';
         const badge = document.createElement('span');
-        badge.className = 'dsh-mermaid-badge';
+        badge.className = 'dsh-mermaid-fs-label';
         badge.textContent = t('diagram.label');
         const spacer = document.createElement('span');
-        spacer.className = 'dsh-mermaid-note';
+        spacer.style.flex = '1 1 auto';
         const actions = document.createElement('div');
         actions.className = 'dsh-mermaid-actions';
         const zoomOut = actionButton('\u2212', t('diagram.zoomOut'));
@@ -1063,6 +1090,24 @@ window.__ModuleLoader__.load({
       }
 
       /**
+       * Place the control group in the shipped code-card banner, ahead of its
+       * wrap/copy actions, so a diagram has exactly one control row. React owns
+       * that row, so a scan re-attaches the group whenever it was replaced.
+       * @param {object} record - the block record.
+       * @returns {void}
+       */
+      function attachToolbar(record) {
+        const banner = record.block.querySelector('[data-code-block-banner]');
+        const host = banner === null ? null : banner.lastElementChild;
+        if (host !== null) {
+          if (record.actions.parentNode !== host) host.insertBefore(record.actions, host.firstChild);
+          return;
+        }
+        // No banner (unexpected markup): keep the controls above the diagram.
+        if (record.actions.parentNode !== record.view) record.view.insertBefore(record.actions, record.diagram);
+      }
+
+      /**
        * Create and attach the plugin-owned view for one code block.
        * @param {Element} block - the `.md-code-block` element.
        * @param {Element} contentElement - its `[data-code-block-content]`.
@@ -1080,20 +1125,14 @@ window.__ModuleLoader__.load({
         diagram.className = 'dsh-mermaid-diagram';
         diagram.hidden = true;
 
-        const bar = document.createElement('div');
-        bar.className = 'dsh-mermaid-bar';
-        const badge = document.createElement('span');
-        badge.className = 'dsh-mermaid-badge';
-        badge.textContent = 'Mermaid';
         const note = document.createElement('span');
         note.className = 'dsh-mermaid-note dsh-mermaid-error';
         note.setAttribute('role', 'alert');
         note.hidden = true;
-        const toggle = document.createElement('button');
-        toggle.type = 'button';
-        toggle.className = 'dsh-mermaid-toggle';
+
+        const toggle = actionButton('</>', t('diagram.showSource'));
+        toggle.classList.add('dsh-mermaid-toggle');
         toggle.setAttribute('aria-pressed', 'false');
-        toggle.textContent = t('diagram.showSource');
 
         const actions = document.createElement('div');
         actions.className = 'dsh-mermaid-actions';
@@ -1106,8 +1145,7 @@ window.__ModuleLoader__.load({
         const fullscreenButton = actionButton('\u26f6', t('diagram.fullscreen'));
         actions.append(zoomOut, zoomLabel, zoomIn, fitButton, fullscreenButton, toggle);
 
-        bar.append(badge, note, actions);
-        view.append(diagram, bar);
+        view.append(note, diagram);
         block.setAttribute(HOST_ATTRIBUTE, '');
         block.appendChild(view);
 
@@ -1149,6 +1187,7 @@ window.__ModuleLoader__.load({
         fitButton.addEventListener('click', () => toggleFit(record));
         fullscreenButton.addEventListener('click', () => openFullscreen(record));
         if (resizeObserver !== null) resizeObserver.observe(diagram);
+        attachToolbar(record);
         return record;
       }
 
@@ -1168,6 +1207,7 @@ window.__ModuleLoader__.load({
           }
         }
         if (record.view.parentNode !== null) record.view.remove();
+        if (record.actions.parentNode !== null) record.actions.remove();
         if (record.block.isConnected) {
           record.block.removeAttribute(HOST_ATTRIBUTE);
           try {
@@ -1195,6 +1235,7 @@ window.__ModuleLoader__.load({
           if (existing !== undefined) {
             if (!block.isConnected) continue;
             seen.add(block);
+            attachToolbar(existing);
             if (!dirtyBlocks.has(block)) continue;
             const contentElement = block.querySelector('[data-code-block-content]');
             if (contentElement === null) continue;
@@ -1328,6 +1369,7 @@ window.__ModuleLoader__.load({
         }
         themeSignature = paletteSignature();
         themeDirty = false;
+        window.addEventListener('scroll', hideTip, true);
         const localeDispose = typeof ctx.locale.subscribe === 'function'
           ? ctx.locale.subscribe(() => {
             translate = ctx.locale.bind(NS);
@@ -1349,6 +1391,7 @@ window.__ModuleLoader__.load({
         scan();
         return () => {
           if (typeof localeDispose === 'function') localeDispose();
+          window.removeEventListener('scroll', hideTip, true);
           fallbackTimer = window.clearInterval(fallbackTimer);
           if (mediaQuery !== null && mediaListener !== null) {
             if (typeof mediaQuery.removeEventListener === 'function') mediaQuery.removeEventListener('change', mediaListener);
@@ -1372,6 +1415,8 @@ window.__ModuleLoader__.load({
           records.clear();
           if (styleElement !== null && styleElement.parentNode !== null) styleElement.remove();
           styleElement = null;
+          if (tipElement !== null && tipElement.parentNode !== null) tipElement.remove();
+          tipElement = null;
         };
       }
 

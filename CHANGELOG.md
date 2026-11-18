@@ -20,8 +20,14 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Changed
 
-- The **Show source / Show diagram** toggle moved into a right-aligned action group beside the new
-  controls; it is hidden until the diagram is ready, together with the rest of the group.
+- The controls moved into the shipped code-card banner, immediately before its wrap/copy actions, so
+  a diagram has exactly one control row instead of a top header and a bottom bar. The group is
+  re-attached on the next scan if React replaces that row.
+- **Show source / Show diagram** is now an icon (`</>` / `▦`) instead of text, matching the icon
+  actions beside it; its hint and accessible name still follow the active locale.
+- Every control shows a hover hint. The hints are portalled to `<body>` because the card clips
+  overflow, and they replace the native `title` tooltip so a control never shows two hints.
+- The failed/oversized notice moved above the diagram, where the source fallback is shown.
 
 ## [1.0.0] - 2026-11-09
 
